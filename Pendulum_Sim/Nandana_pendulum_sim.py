@@ -6,7 +6,7 @@ from tkinter import *
 import time
 
 time_step = 0.001
-real_time = 100 #s
+real_time = 10 #s
 total_time = int(real_time/time_step)
 amplitude = 0.6 #rad
 m = 1 #mass of ball (kg)
@@ -26,9 +26,9 @@ def Euler_Method():
 
 def Semi_Implicit(acceleration):
     ang_pos = [amplitude]  # angular position (rad)
-    ang_vel = [acceleration(amplitude)*time_step]  # angular velocity
+    ang_vel = [acceleration(amplitude, 0)*time_step]  # angular velocity
     for t in range(1, total_time):
-        ang_vel.append(ang_vel[t-1] + acceleration(ang_pos[t-1])*time_step)
+        ang_vel.append(ang_vel[t-1] + acceleration(ang_pos[t-1], ang_vel[t-1])*time_step)
         ang_pos.append(ang_pos[t-1] + ang_vel[t]*time_step)
     return ang_pos, ang_vel
 
@@ -45,11 +45,13 @@ def Scipy():
     return ang_pos, ang_vel
     
 
-def acceleration(theta):
-    if theta < 0:
-        return -g_const*math.sin(theta)/l - 5
+def acceleration(theta, ang_vel):
+    if ang_vel == 0:
+        return -g_const*math.sin(theta)/l
+    elif ang_vel < 0:
+        return -g_const*math.sin(theta)/l + 0.01
     else:
-        return -g_const*math.sin(theta)/l + 5
+        return -g_const*math.sin(theta)/l - 0.01
 # ang_pos = Scipy()[0]
 # ang_vel = Scipy()[1]
 ang_pos = Semi_Implicit(acceleration)[0]
@@ -82,21 +84,21 @@ total_energy = [kinetic_energy[i] + potential_energy[i] for i in range(total_tim
 #-------------------#
 #       PLOTS
 #-------------------#
-plt.figure(1)
-plt.plot(time_steps, ang_pos)  # plotting angular position
-plt.xlabel('time (s)')
-plt.ylabel('angular displacement (rad)')
+# plt.figure(1)
+# plt.plot(time_steps, ang_pos)  # plotting angular position
+# plt.xlabel('time (s)')
+# plt.ylabel('angular displacement (rad)')
 
 # plt.figure(2)
 # plt.plot(time_steps, ang_vel)  # plotting angular velocity
 # plt.xlabel('time (s)')
 # plt.ylabel('angular velocity (rad/s)')
 
-# plt.figure(3)
-# plt.plot(time_steps, kinetic_energy, label='kinetic energy') # plotting kinetic energy
-# plt.plot(time_steps, potential_energy, label='potential energy') # plotting potential energy
-# plt.plot(time_steps, total_energy, label='total energy') # plotting total energy
-# plt.xlabel('time (s)')
-# plt.ylabel('energy (J)')
-# plt.legend()
-# plt.show()
+plt.figure(3)
+plt.plot(time_steps, kinetic_energy, label='kinetic energy') # plotting kinetic energy
+plt.plot(time_steps, potential_energy, label='potential energy') # plotting potential energy
+plt.plot(time_steps, total_energy, label='total energy') # plotting total energy
+plt.xlabel('time (s)')
+plt.ylabel('energy (J)')
+plt.legend()
+plt.show()
