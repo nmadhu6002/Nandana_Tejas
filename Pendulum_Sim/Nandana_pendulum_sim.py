@@ -26,9 +26,9 @@ def Euler_Method():
 
 def Semi_Implicit(acceleration):
     ang_pos = [amplitude]  # angular position (rad)
-    ang_vel = [acceleration(amplitude, 0)*time_step]  # angular velocity
+    ang_vel = [acceleration(amplitude, 0, 0)*time_step]  # angular velocity
     for t in range(1, total_time):
-        ang_vel.append(ang_vel[t-1] + acceleration(ang_pos[t-1], ang_vel[t-1])*time_step)
+        ang_vel.append(ang_vel[t-1] + acceleration(ang_pos[t-1], ang_vel[t-1], t-1)*time_step)
         ang_pos.append(ang_pos[t-1] + ang_vel[t]*time_step)
     return ang_pos, ang_vel
 
@@ -45,13 +45,13 @@ def Scipy():
     return ang_pos, ang_vel
     
 
-def acceleration(theta, ang_vel):
+def acceleration(theta, ang_vel, t):
     if ang_vel == 0:
         return -g_const*math.sin(theta)/l
     elif ang_vel < 0:
-        return -g_const*math.sin(theta)/l + 0.01
+        return -g_const*math.sin(theta)/l + 0.5
     else:
-        return -g_const*math.sin(theta)/l - 0.01
+        return -g_const*math.sin(theta)/l - 0.5
 # ang_pos = Scipy()[0]
 # ang_vel = Scipy()[1]
 ang_pos = Semi_Implicit(acceleration)[0]
@@ -66,39 +66,39 @@ total_energy = [kinetic_energy[i] + potential_energy[i] for i in range(total_tim
 #     ANIMATION
 #-------------------#
 #create canvas
-# tk = Tk()
-# canvas = Canvas(tk, width=400, height=400)
-# canvas.pack()
+tk = Tk()
+canvas = Canvas(tk, width=400, height=400)
+canvas.pack()
 
-# frame_step = int(0.001/time_step)
-# l_pix = l*150 #convert to length pixels
-# r = 20 #radius of ball
-# pos = [(200-l_pix*math.sin(ang_pos[i]), 200+l_pix*math.cos(ang_pos[i])) for i in range(len(ang_pos))] #cartesian position of ball
-# canvas.create_line(200, 200, pos[0][0], pos[0][1]) #create line
-# canvas.create_oval(pos[0][0]-r, pos[0][1]-r, pos[0][0]+r, pos[0][1]+r, fill='red') #create ball
-# for t in range(frame_step, total_time, frame_step):
-#     canvas.move(2, pos[t][0]-pos[t-frame_step][0], pos[t][1]-pos[t-frame_step][1]) #move ball
-#     canvas.coords(1, 200, 200, pos[t][0], pos[t][1]) #move 
-#     tk.update()
+frame_step = int(0.001/time_step)
+l_pix = l*150 #convert to length pixels
+r = 20 #radius of ball
+pos = [(200-l_pix*math.sin(ang_pos[i]), 200+l_pix*math.cos(ang_pos[i])) for i in range(len(ang_pos))] #cartesian position of ball
+canvas.create_line(200, 200, pos[0][0], pos[0][1]) #create line
+canvas.create_oval(pos[0][0]-r, pos[0][1]-r, pos[0][0]+r, pos[0][1]+r, fill='red') #create ball
+for t in range(frame_step, total_time, frame_step):
+    canvas.move(2, pos[t][0]-pos[t-frame_step][0], pos[t][1]-pos[t-frame_step][1]) #move ball
+    canvas.coords(1, 200, 200, pos[t][0], pos[t][1]) #move 
+    tk.update()
 
 #-------------------#
 #       PLOTS
 #-------------------#
-# plt.figure(1)
-# plt.plot(time_steps, ang_pos)  # plotting angular position
-# plt.xlabel('time (s)')
-# plt.ylabel('angular displacement (rad)')
+plt.figure(1)
+plt.plot(time_steps, ang_pos)  # plotting angular position
+plt.xlabel('time (s)')
+plt.ylabel('angular displacement (rad)')
 
 # plt.figure(2)
 # plt.plot(time_steps, ang_vel)  # plotting angular velocity
 # plt.xlabel('time (s)')
 # plt.ylabel('angular velocity (rad/s)')
 
-plt.figure(3)
-plt.plot(time_steps, kinetic_energy, label='kinetic energy') # plotting kinetic energy
-plt.plot(time_steps, potential_energy, label='potential energy') # plotting potential energy
-plt.plot(time_steps, total_energy, label='total energy') # plotting total energy
-plt.xlabel('time (s)')
-plt.ylabel('energy (J)')
-plt.legend()
+# plt.figure(3)
+# plt.plot(time_steps, kinetic_energy, label='kinetic energy') # plotting kinetic energy
+# plt.plot(time_steps, potential_energy, label='potential energy') # plotting potential energy
+# plt.plot(time_steps, total_energy, label='total energy') # plotting total energy
+# plt.xlabel('time (s)')
+# plt.ylabel('energy (J)')
+# plt.legend()
 plt.show()
