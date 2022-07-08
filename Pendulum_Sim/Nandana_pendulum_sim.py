@@ -6,7 +6,7 @@ from tkinter import *
 import time
 
 time_step = 0.001
-real_time = 5 #s
+real_time = 100 #s
 total_time = int(real_time/time_step)
 amplitude = 0.6 #rad
 m = 1 #mass of ball (kg)
@@ -24,11 +24,11 @@ def Euler_Method():
         ang_vel.append(ang_vel[t-1] - g_const*math.sin(ang_pos[t-1])/l*time_step)
     return ang_pos, ang_vel
 
-def Semi_Implicit():
+def Semi_Implicit(acceleration):
     ang_pos = [amplitude]  # angular position (rad)
-    ang_vel = [-g_const*math.sin(amplitude)/l*time_step]  # angular velocity
+    ang_vel = [acceleration(amplitude)*time_step]  # angular velocity
     for t in range(1, total_time):
-        ang_vel.append(ang_vel[t-1] - g_const*math.sin(ang_pos[t-1])/l*time_step)
+        ang_vel.append(ang_vel[t-1] + acceleration(ang_pos[t-1])*time_step)
         ang_pos.append(ang_pos[t-1] + ang_vel[t]*time_step)
     return ang_pos, ang_vel
 
@@ -45,17 +45,21 @@ def Scipy():
     return ang_pos, ang_vel
     
 
+def acceleration(theta):
+    if theta < 0:
+        return -g_const*math.sin(theta)/l - 5
+    else:
+        return -g_const*math.sin(theta)/l + 5
 # ang_pos = Scipy()[0]
 # ang_vel = Scipy()[1]
-ang_pos = Semi_Implicit()[0]
-ang_vel = Semi_Implicit()[1]
+ang_pos = Semi_Implicit(acceleration)[0]
+ang_vel = Semi_Implicit(acceleration)[1]
 # ang_pos = Euler_Method()[0]
 # ang_vel = Euler_Method()[1]
 kinetic_energy = [1/2*m*(_*l)**2 for _ in ang_vel]
 potential_energy = [m*g_const*(l-l*math.cos(_)) for _ in ang_pos]
 total_energy = [kinetic_energy[i] + potential_energy[i] for i in range(total_time)]
-# print(ang_vel[:10])
-print(total_energy[-1] - total_energy[0])
+#print(ang_pos)
 #-------------------#
 #     ANIMATION
 #-------------------#
@@ -78,21 +82,21 @@ print(total_energy[-1] - total_energy[0])
 #-------------------#
 #       PLOTS
 #-------------------#
-# plt.figure(1)
-# plt.plot(time_steps, ang_pos)  # plotting angular position
-# plt.xlabel('time (s)')
-# plt.ylabel('angular displacement (rad)')
+plt.figure(1)
+plt.plot(time_steps, ang_pos)  # plotting angular position
+plt.xlabel('time (s)')
+plt.ylabel('angular displacement (rad)')
 
 # plt.figure(2)
 # plt.plot(time_steps, ang_vel)  # plotting angular velocity
 # plt.xlabel('time (s)')
 # plt.ylabel('angular velocity (rad/s)')
 
-plt.figure(3)
+# plt.figure(3)
 # plt.plot(time_steps, kinetic_energy, label='kinetic energy') # plotting kinetic energy
 # plt.plot(time_steps, potential_energy, label='potential energy') # plotting potential energy
-plt.plot(time_steps, total_energy, label='total energy') # plotting total energy
-plt.xlabel('time (s)')
-plt.ylabel('energy (J)')
-plt.legend()
-plt.show()
+# plt.plot(time_steps, total_energy, label='total energy') # plotting total energy
+# plt.xlabel('time (s)')
+# plt.ylabel('energy (J)')
+# plt.legend()
+# plt.show()
