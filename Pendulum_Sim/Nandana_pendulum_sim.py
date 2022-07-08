@@ -46,12 +46,7 @@ def Scipy():
     
 
 def acceleration(theta, ang_vel, t):
-    if ang_vel == 0:
-        return -g_const*math.sin(theta)/l
-    elif ang_vel < 0:
-        return -g_const*math.sin(theta)/l + 0.5
-    else:
-        return -g_const*math.sin(theta)/l - 0.5
+    return -g_const*math.sin(theta)/l + ang_vel*(-0.5)
 # ang_pos = Scipy()[0]
 # ang_vel = Scipy()[1]
 ang_pos = Semi_Implicit(acceleration)[0]
